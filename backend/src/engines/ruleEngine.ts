@@ -27,12 +27,40 @@ export class RuleEngine {
     }
 
     try {
+      if (this.isStructuredRule(condition)) {
+        return this.evaluateStructured(JSON.parse(condition), data);
+      }
       let expr = this.preprocess(condition, data);
       const result = parser.evaluate(expr, this.sanitizeData(data));
       return !!result;
     } catch (error: any) {
       logger.error(`[RuleEngine] Failed to evaluate condition: "${condition}"`, { error: error.message });
       return false;
+    }
+  }
+
+  private isStructuredRule(condition: string): boolean {
+    return condition.trim().startsWith('{') && condition.trim().endsWith('}');
+  }
+
+  public evaluateStructured(rule: any, data: RuleData): boolean {
+    const { field, operator, value } = rule;
+    const fieldValue = data[field];
+
+    switch (operator) {
+      case '>': return fieldValue > value;
+      case '<': return fieldValue < value;
+      case '>=': return fieldValue >= value;
+      case '<=': return fieldValue <= value;
+      case '==': return fieldValue == value;
+      case '!=': return fieldValue != value;
+      case 'contains': 
+        return String(fieldValue || '').toLowerCase().includes(String(value).toLowerCase());
+      case 'in':
+        return Array.isArray(value) && value.includes(fieldValue);
+      default:
+        logger.warn(`[RuleEngine] Unknown operator: ${operator}`);
+        return false;
     }
   }
 

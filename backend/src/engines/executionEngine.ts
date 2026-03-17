@@ -289,7 +289,8 @@ export class ExecutionEngine {
           errorMessage = error.message;
           logger.error(`✗ Step "${step.name}" failed:`, { error: error.message });
         } finally {
-          const duration_ms = new Date().getTime() - startTime.getTime();
+          const endedAt = new Date();
+          const duration_ms = endedAt.getTime() - startTime.getTime();
           
           await prisma.executionLog.create({
             data: {
@@ -300,9 +301,15 @@ export class ExecutionEngine {
               selected_next_step: stepNextIds.join(','),
               status,
               error_message: errorMessage,
-              metadata: { ...logMetadata, duration_ms, retry_attempts: totalAttempts },
+              metadata: { 
+                ...logMetadata, 
+                duration_ms, 
+                retry_attempts: totalAttempts,
+                started_at: startTime.toISOString(),
+                ended_at: endedAt.toISOString()
+              },
               started_at: startTime,
-              ended_at: new Date()
+              ended_at: endedAt
             }
           });
         }

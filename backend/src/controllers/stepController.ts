@@ -1,20 +1,11 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { StepService } from '../services/stepService.js';
 
-const prisma = new PrismaClient();
+const stepService = new StepService();
 
 export const createStep = async (req: Request, res: Response) => {
   try {
-    const { workflow_id, name, step_type, order, metadata } = req.body;
-    const step = await prisma.step.create({
-      data: {
-        workflow_id,
-        name,
-        step_type,
-        order: order !== undefined ? Number(order) : 0,
-        metadata: metadata || {},
-      }
-    });
+    const step = await stepService.createStep(req.body);
     res.status(201).json(step);
   } catch (error: any) {
     res.status(400).json({ error: error.message });
@@ -23,12 +14,7 @@ export const createStep = async (req: Request, res: Response) => {
 
 export const listSteps = async (req: Request, res: Response) => {
   try {
-    const { workflow_id } = req.params as any;
-    const steps = await prisma.step.findMany({
-      where: { workflow_id },
-      orderBy: { order: 'asc' },
-      include: { rules: true }
-    });
+    const steps = await stepService.listSteps(req.params.workflow_id as string);
     res.json(steps);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -37,19 +23,7 @@ export const listSteps = async (req: Request, res: Response) => {
 
 export const updateStep = async (req: Request, res: Response) => {
   try {
-    const { name, step_type, order, metadata } = req.body;
-    
-    const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (step_type !== undefined) updateData.step_type = step_type;
-    if (order !== undefined) updateData.order = Number(order);
-    if (metadata !== undefined) updateData.metadata = metadata;
-
-    const { id } = req.params as any;
-    const step = await prisma.step.update({
-      where: { id },
-      data: updateData
-    });
+    const step = await stepService.updateStep(req.params.id as string, req.body);
     res.json(step);
   } catch (error: any) {
     res.status(400).json({ error: error.message });
@@ -58,8 +32,7 @@ export const updateStep = async (req: Request, res: Response) => {
 
 export const deleteStep = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params as any;
-    await prisma.step.delete({ where: { id } });
+    await stepService.deleteStep(req.params.id as string);
     res.status(204).send();
   } catch (error: any) {
     res.status(400).json({ error: error.message });

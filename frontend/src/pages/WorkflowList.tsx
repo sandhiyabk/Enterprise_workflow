@@ -9,12 +9,12 @@ const WorkflowList = () => {
   const [seedMsg, setSeedMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data: result, isLoading } = useQuery({
     queryKey: ['workflows', search],
     queryFn: () => workflowService.list(search)
   });
 
-  const workloads = data?.workflows || [];
+  const workloads = result?.workflows || result || [];
 
   const createMutation = useMutation({
     mutationFn: () => workflowService.create({ name: 'New Workflow', input_schema: {} }),

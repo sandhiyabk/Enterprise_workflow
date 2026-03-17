@@ -25,3 +25,10 @@ Thumbs.db
 # IDE files
 .vscode
 .idea
+
+# Local databases
+*.db
+*.db-journal
+
+# Prisma
+backend/prisma_error.log

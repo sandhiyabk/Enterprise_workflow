@@ -55,7 +55,8 @@ model Execution {
   workflow_version Int
   status           String          @default("PENDING")
   data             Json
-  active_step_ids  Json            @default("[]") // Replaces current_step_id for parallel support
+  active_step_ids  Json            @default("[]")
+  current_step_id  String?
   retries          Int             @default(0)
   triggered_by     String?
   started_at       DateTime        @default(now())

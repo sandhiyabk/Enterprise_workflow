@@ -6,11 +6,13 @@ import { Link } from 'react-router-dom';
 const ExecutionList = () => {
   const queryClient = useQueryClient();
 
-  const { data: executions, isLoading, isFetching } = useQuery({
+  const { data: result, isLoading, isFetching } = useQuery({
     queryKey: ['executions'],
     queryFn: () => executionService.list(),
     refetchInterval: 5000, // auto-refresh every 5s to catch live executions
   });
+
+  const executions = Array.isArray(result) ? result : result?.executions || [];
 
   if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-brand-600" size={48} /></div>;
 

@@ -8,8 +8,8 @@
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.ts",
     "build": "tsc",
-    "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
+    "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "prisma:push": "prisma db push --schema=./prisma/schema.prisma",
     "test": "jest",
     "seed": "tsx src/seed.ts"
   },
