@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, Layout, Layers, PieChart } from 'lucide-react';
+import NotificationPanel from './NotificationPanel';
 
 const Navbar = () => {
   const location = useLocation();
@@ -47,6 +48,13 @@ const Navbar = () => {
               <Layers size={18} />
               <span>Executions</span>
             </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <NotificationPanel userId="demo-user-123" />
+            <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold">
+              JD
+            </div>
           </div>
         </div>
       </div>

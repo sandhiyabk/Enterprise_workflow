@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 model Workflow {
@@ -81,4 +80,15 @@ model ExecutionLog {
   ended_at          DateTime?
 
   @@index([execution_id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  type      String   // email, in-app
+  status    String   // sent, pending
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

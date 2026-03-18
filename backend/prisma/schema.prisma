@@ -55,8 +55,7 @@ model Execution {
   workflow_version Int
   status           String          @default("PENDING")
   data             Json
-  active_step_ids  Json            @default("[]")
-  current_step_id  String?
+  active_step_ids  Json            @default("[]") // Replaces current_step_id for parallel support
   retries          Int             @default(0)
   triggered_by     String?
   started_at       DateTime        @default(now())
@@ -82,4 +81,15 @@ model ExecutionLog {
   ended_at          DateTime?
 
   @@index([execution_id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  type      String   // email, in-app
+  status    String   // sent, pending
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

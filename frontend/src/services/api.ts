@@ -24,8 +24,8 @@ export const workflowService = {
   delete: async (id: string) => {
     await api.delete(`/workflows/${id}`);
   },
-  execute: async (id: string, input_data: any) => {
-    const { data } = await api.post(`/workflows/${id}/execute`, { input_data });
+  execute: async (id: string, input_data: any, triggered_by?: string) => {
+    const { data } = await api.post(`/workflows/${id}/execute`, { input_data, triggered_by });
     return data;
   }
 };

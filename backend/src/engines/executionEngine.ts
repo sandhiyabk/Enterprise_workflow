@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { RuleEngine } from './ruleEngine.js';
 import { validateInput } from '../utils/validator.js';
 import { logger } from '../utils/logger.js';
+import { notificationService } from '../services/notificationService.js';
 
 const prisma = new PrismaClient();
 const ruleEngine = new RuleEngine();
@@ -65,6 +66,9 @@ export class ExecutionEngine {
 
     logger.info(`Starting execution ${execution.id} for workflow "${workflow.name}"`);
 
+    const userId = triggeredBy || 'SYSTEM';
+    notificationService.createInAppNotification(userId, `Workflow "${workflow.name}" started.`).catch(err => logger.error('Notification failed:', err));
+
     this.processSteps(execution.id).catch(err => {
       logger.error('Unhandled error in processSteps:', { error: err.message, stack: err.stack });
     });
@@ -103,6 +107,7 @@ export class ExecutionEngine {
             data: { status: 'COMPLETED', ended_at: new Date() }
           });
           logger.info(`Execution ${executionId} COMPLETED`);
+          notificationService.createInAppNotification(execution.triggered_by || 'SYSTEM', `Workflow "${execution.workflow.name}" completed successfully.`).catch(err => logger.error('Notification failed:', err));
         } else {
           // It's still PENDING approvals
           await prisma.execution.update({
@@ -130,6 +135,7 @@ export class ExecutionEngine {
             ended_at: new Date()
           }
         });
+        notificationService.createInAppNotification(execution.triggered_by || 'SYSTEM', `Workflow "${execution.workflow.name}" failed: Maximum iterations reached.`).catch(err => logger.error('Notification failed:', err));
         break;
       }
 
@@ -194,6 +200,7 @@ export class ExecutionEngine {
             });
 
             logger.info(`⏸ Paused branch at APPROVAL step "${step.name}" — awaiting approval from ${assignee}`);
+            notificationService.createInAppNotification(assignee, `Approval requested for step "${step.name}" in workflow "${(execution as any).workflow.name}".`).catch(err => logger.error('Notification failed:', err));
             return; // This branch ends here. It will be resumed via resumeApproval()
           }
 
@@ -321,6 +328,7 @@ export class ExecutionEngine {
           where: { id: executionId },
           data: { status: 'FAILED', ended_at: new Date(), active_step_ids: JSON.stringify([]) as any }
         });
+        notificationService.createInAppNotification(execution.triggered_by || 'SYSTEM', `Workflow "${execution.workflow.name}" failed.`).catch(err => logger.error('Notification failed:', err));
         break;
       }
 

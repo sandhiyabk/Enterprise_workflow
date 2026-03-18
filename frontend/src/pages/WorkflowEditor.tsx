@@ -127,7 +127,7 @@ const WorkflowEditor = () => {
   });
 
   const executeMutation = useMutation({
-    mutationFn: (data: any) => workflowService.execute(id!, data),
+    mutationFn: (data: any) => workflowService.execute(id!, data, 'demo-user-123'),
     onSuccess: () => {
       navigate('/executions');
     },
